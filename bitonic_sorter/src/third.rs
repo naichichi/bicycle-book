@@ -1,7 +1,18 @@
 use super::SortOrder;
+use std::cmp::Ordering;
 
-// 成功時はOk(())を、失敗時はErr(文字列)を返す
-pub fn sort<T: Ord>(x: &mut [T], order: &SortOrder) -> Result<(), String>{
+pub fn sort_by<T, F>(x: &mut [T], comparator: &F) -> Result<(), String>
+    where F: Fn(&T, &T) -> Ordering
+{
+    if x.len().is_power_of_two() {
+        do_sort(x, true, comparator);
+        Ok(())
+    } else {
+        Err(format!("The length of x is not a power of two. (x.len(): {})", x.len()))
+    }
+}
+
+pub fn sort<T: Ord>(x: &mut [T], order: &SortOrder) -> Result<(), String> {
     // is_power_of_twoメソッドを使用し、2の冪乗か判定
     if x.len().is_power_of_two() {
         match *order {
