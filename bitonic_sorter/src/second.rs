@@ -1,9 +1,16 @@
 use super::SortOrder;
 
-pub fn sort<T: Ord>(x: &mut [T], order: &SortOrder) {
-    match *order {
-        SortOrder::Ascending => do_sort(x, true),
-        SortOrder::Descending => do_sort(x, false),
+// 成功時はOk(())を、失敗時はErr(文字列)を返す
+pub fn sort<T: Ord>(x: &mut [T], order: &SortOrder) -> Result<(), String>{
+    // is_power_of_twoメソッドを使用し、2の冪乗か判定
+    if x.len().is_power_of_two() {
+        match *order {
+            SortOrder::Ascending => do_sort(x, true),
+            SortOrder::Descending => do_sort(x, false),
+        };
+        Ok(())
+    } else {
+        Err(format!("The length of x is not a power of two. (x.len(): {})", x.len()))
     }
 }
 
@@ -51,9 +58,8 @@ mod tests {
         // xに型注釈Vec<u32>を付ける
         let mut x: Vec<u32> = vec![10, 30, 11, 20, 4, 330, 21, 110];
         
-        // xのスライスを作成
-        // 「&mut x」は「&mut x[..]」と書いてもいい
-        sort(&mut x, &Ascending);
+        // 戻り値がOk(())であることを確認
+        assert_eq!(sort(&mut x, &Ascending), Ok(()));
 
         // xの要素が昇順にソートされていることを確認する
         assert_eq!(x, vec![4, 10, 11, 20, 21, 30, 110, 330]);
@@ -64,7 +70,7 @@ mod tests {
         // xに型注釈Vec<u32>を付ける
         let mut x: Vec<u32>  = vec![10, 30, 11, 20, 4, 330, 21, 110];
         
-        sort(&mut x, &Descending);
+        assert_eq!(sort(&mut x, &Descending), Ok(()));
 
         // xの要素が降順にソートされていることを確認する
         assert_eq!(x, vec![330, 110, 30, 21, 20, 11, 10, 4]);
@@ -75,7 +81,7 @@ mod tests {
         // テストデータとして文字列型のベクタを作成
         let mut x = vec!["Rust", "is", "fast", "and", "memory-efficient", "with", "no", "GC"];
         
-        sort(&mut x, &Ascending);
+        assert_eq!(sort(&mut x, &Ascending), Ok(()));
 
         // xの要素が昇順にソートされていることを確認する
         assert_eq!(x, vec!["GC", "Rust", "and", "fast", "is", "memory-efficient", "no", "with"]);
@@ -85,9 +91,17 @@ mod tests {
     fn sort_string_descending() {
         let mut x = vec!["Rust", "is", "fast", "and", "memory-efficient", "with", "no", "GC"];
         
-        sort(&mut x, &Descending);
+        assert_eq!(sort(&mut x, &Descending), Ok(()));
 
         // xの要素が昇順にソートされていることを確認する
         assert_eq!(x, vec!["with", "no", "memory-efficient", "is", "fast", "and", "Rust", "GC"]);
+    }
+
+    #[test]
+    fn sort_to_fail() {
+        // 2の冪乗になっていない
+        let mut x = vec![10, 30, 11];
+        
+        assert!(sort(&mut x, &Ascending).is_err());
     }
 }
