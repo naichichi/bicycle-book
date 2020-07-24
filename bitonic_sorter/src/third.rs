@@ -13,43 +13,53 @@ pub fn sort_by<T, F>(x: &mut [T], comparator: &F) -> Result<(), String>
 }
 
 pub fn sort<T: Ord>(x: &mut [T], order: &SortOrder) -> Result<(), String> {
-    // is_power_of_twoメソッドを使用し、2の冪乗か判定
-    if x.len().is_power_of_two() {
-        match *order {
-            SortOrder::Ascending => do_sort(x, true),
-            SortOrder::Descending => do_sort(x, false),
-        };
-        Ok(())
+    // do_sortを呼ぶ代わりに、sort_byを呼ぶようにする
+    // is_power_of_twoはsort_byが呼ぶので削除
+    match *order {
+        SortOrder::Ascending => sort_by(x, &|a, b| a.cmp(b)),
+        SortOrder::Descending => sort_by(x, &|a, b| b.cmp(a)),
+    }
+}
+
+fn do_sort<T, F>(x: &mut [T], forward: bool, comparator: &F)
+    where F: Fn(&T, &T) -> Ordering
+{
+    if x.len() > 1 {
+        let mid_point = x.len() / 2;
+
+        do_sort(&mut x[..mid_point], true, comparator);
+        do_sort(&mut x[mid_point..], false, comparator);
+
+        sub_sort(x, forward, comparator);        
+    }
+}
+
+fn sub_sort<T, F>(x: &mut [T], forward: bool, comparator: &F)
+    where F: Fn(&T, &T) -> Ordering
+{
+    if x.len() > 1 {
+        compare_and_swap(x, forward, comparator);
+
+        let mid_point = x.len() / 2;
+        sub_sort(&mut x[..mid_point], forward, comparator);
+        sub_sort(&mut x[mid_point..], forward, comparator);
+    }
+}
+
+fn compare_and_swap<T, F>(x: &mut [T], forward: bool, comparator: &F)
+    where F: Fn(&T, &T) -> Ordering
+{
+    // forward(bool値)をOrdering値に変換しておく
+    let swap_condition = if forward {
+        Ordering::Greater
     } else {
-        Err(format!("The length of x is not a power of two. (x.len(): {})", x.len()))
-    }
-}
+        Ordering::Less
+    };
 
-fn do_sort<T: Ord>(x: &mut [T], up: bool) {
-    if x.len() > 1 {
-        let mid_point = x.len() / 2;
-        do_sort(&mut x[..mid_point], true);
-        do_sort(&mut x[mid_point..], false);
-
-        sub_sort(x, up)        
-    }
-}
-
-fn sub_sort<T: Ord>(x: &mut [T], up: bool) {
-    if x.len() > 1 {
-        compare_and_swap(x, up);
-
-        let mid_point = x.len() / 2;
-        sub_sort(&mut x[..mid_point], up);
-        sub_sort(&mut x[mid_point..], up);
-    }
-}
-
-fn compare_and_swap<T: Ord>(x: &mut [T], up: bool) {
     let mid_point = x.len() / 2;
     for i in 0..mid_point {
-        if (x[i] > x[mid_point + i]) == up {
-            // 要素を交換する
+        // comparatorクロージャで2要素を比較し、返されたOrderingのバリアントがswap_conditionと等しいなら要素を交換する
+        if comparator(&x[i], &x[mid_point + i]) == swap_condition {
             x.swap(i, mid_point + i);
         }
     }
