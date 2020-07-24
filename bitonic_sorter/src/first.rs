@@ -18,11 +18,17 @@ fn sub_sort(x: &mut [u32], up: bool) {
         compare_and_swap(x, up);
 
         let mid_point = x.len() / 2;
-        sub_sort(&mut x[..mid_point], true);
-        sub_sort(&mut x[mid_point..], false);
+        sub_sort(&mut x[..mid_point], up);
+        sub_sort(&mut x[mid_point..], up);
     }
 }
 
 fn compare_and_swap(x: &mut [u32], up: bool) {
-    unimplemented!();
+    let mid_point = x.len() / 2;
+    for i in 0..mid_point {
+        if (x[i] > x[mid_point + 1]) == up {
+            // 要素を交換する
+            x.swap(i, mid_point + 1);
+        }
+    }
 }
