@@ -1,10 +1,17 @@
-// 型パラメータTを導入して関数をジェネリクス化する
-// 型パラメータTんトレイと境界Ordを追加する
-pub fn sort<T: Ord>(x: &mut [T], up: bool) {
+use super::SortOrder;
+
+pub fn sort<T: Ord>(x: &mut [T], order: &SortOrder) {
+    match *order {
+        SortOrder::Ascending => do_sort(x, true),
+        SortOrder::Descending => do_sort(x, false),
+    }
+}
+
+fn do_sort<T: Ord>(x: &mut [T], up: bool) {
     if x.len() > 1 {
         let mid_point = x.len() / 2;
-        sort(&mut x[..mid_point], true);
-        sort(&mut x[mid_point..], false);
+        do_sort(&mut x[..mid_point], true);
+        do_sort(&mut x[mid_point..], false);
 
         sub_sort(x, up)        
     }
