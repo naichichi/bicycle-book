@@ -71,6 +71,7 @@ mod tests {
     // 親モジュール(first)のsort関数を使用する
     use super::{sort, sort_by};
     use crate::SortOrder::*;
+    use crate::utils::{new_u32_vec, is_sorted_ascending, is_sorted_descending};
 
     // deriveアトリュビートを使い、DebugトレイトとPartialEqトレイトの実装を自動導出する
     #[derive(Debug, PartialEq)]
@@ -116,6 +117,27 @@ mod tests {
 
         // xの要素が降順にソートされていることを確認する
         assert_eq!(x, vec![330, 110, 30, 21, 20, 11, 10, 4]);
+    }
+
+    #[test]
+    fn sort_u32_large() {
+        {
+            // 乱数で65,536要素のデータ列を作る
+            let mut x = new_u32_vec(65536);
+
+            // 昇順にソートする
+            assert_eq!(sort(&mut x, &Ascending), Ok(()));
+
+            // ソート結果が正しいことを検証する
+            assert!(is_sorted_ascending(&x));
+        }
+        {
+            let mut x = new_u32_vec(65536);
+
+            assert_eq!(sort(&mut x, &Descending), Ok(()));
+
+            assert!(is_sorted_descending(&x));
+        }
     }
 
     #[test]
