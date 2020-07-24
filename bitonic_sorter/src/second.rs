@@ -35,6 +35,7 @@ fn compare_and_swap<T: Ord>(x: &mut [T], up: bool) {
 mod tests {
     // 親モジュール(first)のsort関数を使用する
     use super::sort;
+    use crate::SortOrder::*;
 
     // #[test]のついた関数はcargo testした時に実行される
     #[test]
@@ -45,7 +46,7 @@ mod tests {
         
         // xのスライスを作成
         // 「&mut x」は「&mut x[..]」と書いてもいい
-        sort(&mut x, true);
+        sort(&mut x, &Ascending);
 
         // xの要素が昇順にソートされていることを確認する
         assert_eq!(x, vec![4, 10, 11, 20, 21, 30, 110, 330]);
@@ -56,7 +57,7 @@ mod tests {
         // xに型注釈Vec<u32>を付ける
         let mut x: Vec<u32>  = vec![10, 30, 11, 20, 4, 330, 21, 110];
         
-        sort(&mut x, false);
+        sort(&mut x, &Descending);
 
         // xの要素が降順にソートされていることを確認する
         assert_eq!(x, vec![330, 110, 30, 21, 20, 11, 10, 4]);
@@ -67,7 +68,7 @@ mod tests {
         // テストデータとして文字列型のベクタを作成
         let mut x = vec!["Rust", "is", "fast", "and", "memory-efficient", "with", "no", "GC"];
         
-        sort(&mut x, true);
+        sort(&mut x, &Ascending);
 
         // xの要素が昇順にソートされていることを確認する
         assert_eq!(x, vec!["GC", "Rust", "and", "fast", "is", "memory-efficient", "no", "with"]);
@@ -77,7 +78,7 @@ mod tests {
     fn sort_string_descending() {
         let mut x = vec!["Rust", "is", "fast", "and", "memory-efficient", "with", "no", "GC"];
         
-        sort(&mut x, false);
+        sort(&mut x, &Descending);
 
         // xの要素が昇順にソートされていることを確認する
         assert_eq!(x, vec!["with", "no", "memory-efficient", "is", "fast", "and", "Rust", "GC"]);
