@@ -72,7 +72,8 @@ mod tests {
     use super::{sort, sort_by};
     use crate::SortOrder::*;
 
-    // 構造体の定義ではフィールドの型は省略できない
+    // deriveアトリュビートを使い、DebugトレイトとPartialEqトレイトの実装を自動導出する
+    #[derive(Debug, PartialEq)]
     struct Student {
         first_name: String, // String型
         last_name: String,  // String型
